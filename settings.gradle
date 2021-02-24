@@ -9,3 +9,7 @@ project(':gps:service').name = 'gps-service'
 
 include ':rewards:service'
 project(':rewards:service').name = 'rewards-service'
+
+include ':users:api', ':users:service'
+project(':users:api').name = 'users-api'
+project(':users:service').name = 'users-service'
