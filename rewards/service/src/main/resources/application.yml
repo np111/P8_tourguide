@@ -1,0 +1,8 @@
+---
+server:
+  port: '${REWARDS_SERVER_PORT:8082}'
+
+management:
+  server:
+    address: "${REWARDS_MANAGEMENT_ADDR:127.0.0.1}"
+    port: "${REWARDS_MANAGEMENT_PORT:-1}"

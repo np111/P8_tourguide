@@ -6,3 +6,6 @@ project(':common:service').name = 'common-service'
 include ':gps:api', ':gps:service'
 project(':gps:api').name = 'gps-api'
 project(':gps:service').name = 'gps-service'
+
+include ':rewards:service'
+project(':rewards:service').name = 'rewards-service'
