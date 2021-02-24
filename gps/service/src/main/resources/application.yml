@@ -1,0 +1,8 @@
+---
+server:
+  port: '${GPS_SERVER_PORT:8081}'
+
+management:
+  server:
+    address: "${GPS_MANAGEMENT_ADDR:127.0.0.1}"
+    port: "${GPS_MANAGEMENT_PORT:-1}"

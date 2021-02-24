@@ -1,0 +1,89 @@
+def libsDir = "${projectDir}/libs"
+
+ext {
+    tourGuideVersion = '1.0.0'
+
+    javaVersion = JavaVersion.VERSION_1_8
+    lombokVersion = '1.18.16'
+    mapstructVersion = '1.4.2.Final'
+    jacocoVersion = '0.8.6'
+}
+
+buildscript {
+    ext {
+        dependencyManagementPluginVersion = '1.0.11.RELEASE'
+        springBootVersion = '2.4.3'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.spring.gradle:dependency-management-plugin:${dependencyManagementPluginVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
+}
+
+subprojects {
+    // Configure java
+    apply plugin: 'java'
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    // Configure repositories & dependency management
+    repositories {
+        mavenCentral()
+        flatDir {
+            dirs "${libsDir}"
+        }
+    }
+
+    apply plugin: 'io.spring.dependency-management'
+    dependencyManagement {
+        dependencies {
+            dependency "org.mapstruct:mapstruct:${mapstructVersion}"
+            dependency "org.mapstruct:mapstruct-processor:${mapstructVersion}"
+            dependency "org.projectlombok:lombok:${lombokVersion}"
+        }
+    }
+
+    // Configure spring boot dependency management
+    apply plugin: 'org.springframework.boot'
+    bootJar {
+        enabled false
+    }
+    jar {
+        enabled true
+    }
+
+    // Configure global dependencies
+    dependencies {
+        // Lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+
+        // Spring Boot configuration processor
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+        // JUnit
+        // TODO
+    }
+
+    // Configure Jacoco
+    apply plugin: 'jacoco'
+
+    jacoco {
+        toolVersion = jacocoVersion
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.enabled true
+            csv.enabled false
+            html.destination file("${buildDir}/jacocoHtml")
+        }
+    }
+
+    test.finalizedBy jacocoTestReport
+}

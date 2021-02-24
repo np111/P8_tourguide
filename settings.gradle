@@ -1,0 +1,8 @@
+rootProject.name = 'tour-guide'
+
+include ':common:service'
+project(':common:service').name = 'common-service'
+
+include ':gps:api', ':gps:service'
+project(':gps:api').name = 'gps-api'
+project(':gps:service').name = 'gps-service'
