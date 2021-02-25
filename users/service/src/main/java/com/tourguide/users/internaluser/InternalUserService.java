@@ -6,6 +6,7 @@ import com.tourguide.users.internaluser.entity.InternalUserEntity;
 import com.tourguide.users.internaluser.entity.InternalVisitedLocationEntity;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserReward;
+import com.tourguide.users.properties.InternalUsersProperties;
 import com.tourguide.users.service.UserService;
 import com.tourguide.users.util.UuidUtil;
 import java.time.ZoneOffset;
@@ -42,9 +43,9 @@ public class InternalUserService implements UserService {
     private Map<String, InternalUserEntity> internalUserMap;
 
     @Autowired
-    public InternalUserService(InternalUserMapper internalUserMapper) {
+    public InternalUserService(InternalUsersProperties props, InternalUserMapper internalUserMapper) {
         this.internalUserMapper = internalUserMapper;
-        this.internalUserMap = generateUserMap(100); // TODO: config
+        this.internalUserMap = generateUserMap(props.getNumber());
     }
 
     void setUsersNumber(int usersNumber) {

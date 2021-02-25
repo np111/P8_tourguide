@@ -8,6 +8,10 @@ management:
     port: "${USERS_MANAGEMENT_PORT:-1}"
 
 tourguide:
+  internal-users:
+    number: '${INTERNAL_USERS_NUMBER:100}'
+  tracking:
+    proximity-buffer: '${TRACKING_PROXIMITY_BUFFER:10}'
   gps-service:
     url: '${GPS_SERVICE_URL:http://127.0.0.1:8081/}'
     max-concurrent-requests: '${GPS_SERVICE_MAX_REQUESTS:128}'
