@@ -3,8 +3,10 @@ package com.tourguide.users.service;
 import com.tourguide.gps.model.Location;
 import com.tourguide.gps.model.VisitedLocation;
 import com.tourguide.users.model.TripDeal;
+import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserNearbyAttractions;
 import com.tourguide.users.model.UserReward;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TourGuideService {
     private final UserService userService;
+    private final TripPricerService tripPricerService;
 
     public VisitedLocation getUserLocation(String userName) {
         return userService.getUserLocation(userName).orElse(null);
@@ -35,7 +38,7 @@ public class TourGuideService {
     }
 
     public List<TripDeal> getTripDeals(String userName) {
-        // TODO
-        return null;
+        User user = userService.getUser(userName).orElse(null);
+        return user == null ? Collections.emptyList() : tripPricerService.getTripDeals(user);
     }
 }
