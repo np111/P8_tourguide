@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(':common:common-restclient')
     implementation project(':common:common-service')
     implementation project(':gps:gps-api')
     implementation project(':users:users-api')

@@ -1,6 +1,15 @@
 ---
 server:
   port: '${GPS_SERVER_PORT:8081}'
+  tomcat:
+    threads:
+      minSpare: '${GPS_SERVER_THREADS_MIN:128}'
+      max: '${GPS_SERVER_THREADS_MAX:128}'
+
+spring:
+  mvc:
+    servlet:
+      load-on-startup: 1
 
 management:
   server:

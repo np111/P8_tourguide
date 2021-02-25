@@ -7,4 +7,12 @@ management:
     address: "${USERS_MANAGEMENT_ADDR:127.0.0.1}"
     port: "${USERS_MANAGEMENT_PORT:-1}"
 
+tourguide:
+  gps-service:
+    url: '${GPS_SERVICE_URL:http://127.0.0.1:8081/}'
+    max-concurrent-requests: '${GPS_SERVICE_MAX_REQUESTS:128}'
+  rewards-service:
+    url: '${REWARDS_SERVICE_URL:http://127.0.0.1:8082/}'
+    max-concurrent-requests: '${REWARDS_SERVICE_MAX_REQUESTS:1024}'
+
 logging.level.com.tourguide: DEBUG
