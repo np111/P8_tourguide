@@ -1,6 +1,7 @@
 rootProject.name = 'tour-guide'
 
-include ':common:service'
+include ':common:restclient', ':common:service'
+project(':common:restclient').name = 'common-restclient'
 project(':common:service').name = 'common-service'
 
 include ':gps:api', ':gps:service'
@@ -9,3 +10,7 @@ project(':gps:service').name = 'gps-service'
 
 include ':rewards:service'
 project(':rewards:service').name = 'rewards-service'
+
+include ':users:api', ':users:service'
+project(':users:api').name = 'users-api'
+project(':users:service').name = 'users-service'
