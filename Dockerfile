@@ -22,11 +22,11 @@ WORKDIR /app
 ################################################################################
 # Java Runtime (JRE)
 ################################################################################
-FROM adoptopenjdk:15-jre-hotspot as java
+FROM adoptopenjdk/openjdk15:alpine-jre as java
 
 ## Create app user
-RUN groupadd -g 1000 app && \
-    useradd -md /var/lib/app -u 1000 -g 1000 app && \
+RUN addgroup -g 1000 app && \
+    adduser -h /var/lib/app -u 1000 -G app -D app && \
     mkdir -p /app && \
     chown app:app /app
 USER app
