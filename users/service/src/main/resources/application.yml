@@ -12,6 +12,7 @@ tourguide:
     number: '${INTERNAL_USERS_NUMBER:100}'
   tracking:
     proximity-buffer: '${TRACKING_PROXIMITY_BUFFER:10}'
+    warmup: '${TRACKING_WARMUP:false}'
   gps-service:
     url: '${GPS_SERVICE_URL:http://127.0.0.1:8081/}'
     max-concurrent-requests: '${GPS_SERVICE_MAX_REQUESTS:128}'

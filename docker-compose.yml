@@ -44,6 +44,7 @@ services:
     environment:
       - USERS_SERVER_PORT=8080
       - INTERNAL_USERS_NUMBER=100000
+      - TRACKING_WARMUP=true
       - GPS_SERVICE_URL=http://gps-gateway/
       - GPS_SERVICE_MAX_REQUESTS=1024
       - REWARDS_SERVICE_URL=http://rewards-gateway/

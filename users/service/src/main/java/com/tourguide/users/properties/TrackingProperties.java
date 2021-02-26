@@ -13,4 +13,6 @@ public class TrackingProperties {
     @NotNull
     @Min(0)
     private Double proximityBuffer = 10.0D;
+
+    private boolean warmup = false;
 }

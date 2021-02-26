@@ -13,14 +13,16 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,7 @@ import static com.tourguide.users.util.LogUtil.formatMillis;
 
 @Service
 @Slf4j
-public class TrackingService {
+public class TrackingService implements InitializingBean {
     private static final long TRACK_USERS_RATE = 5 * 60 * 1000L;
 
     private static final long SECOND_NANO = TimeUnit.SECONDS.toNanos(1);
@@ -39,6 +41,7 @@ public class TrackingService {
     private final GpsService gpsService;
     private final RewardsService rewardsService;
     private @Setter double proximityBuffer;
+    private final boolean warmup;
 
     @Autowired
     public TrackingService(TrackingProperties props, UserService userService, GpsService gpsService, RewardsService rewardsService) {
@@ -46,6 +49,14 @@ public class TrackingService {
         this.gpsService = gpsService;
         this.rewardsService = rewardsService;
         this.proximityBuffer = props.getProximityBuffer();
+        this.warmup = props.isWarmup();
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (warmup) {
+            doWarmup();
+        }
     }
 
     @Scheduled(initialDelay = 5_000L, fixedRate = TRACK_USERS_RATE)
@@ -141,6 +152,46 @@ public class TrackingService {
                         .rewardPoints(rewardPoints)
                         .build())
                 .thenAcceptAsync(reward -> userService.registerReward(e.getUserName(), reward));
+    }
+
+    private void doWarmup() throws InterruptedException {
+        log.debug("Warmup TrackingService...");
+
+        List<User> users = userService.getAllUsers();
+        if (users.isEmpty()) {
+            throw new IllegalStateException("No users");
+        }
+
+        int concurrencyLimit = 12_000;
+        Semaphore semaphore = new Semaphore(concurrencyLimit);
+        AtomicInteger warmupCount = new AtomicInteger();
+        for (int i = 0; ; ++i) {
+            semaphore.acquire();
+            if (warmupCount.get() >= 120_000) {
+                semaphore.release();
+                break;
+            }
+
+            User user = users.get(i % users.size());
+            CompletableFuture<?> future = trackUserLocation(user).whenComplete((ignored, ex) -> {
+                if (ex == null) {
+                    warmupCount.incrementAndGet();
+                }
+                semaphore.release();
+            });
+
+            if (warmupCount.get() == 0) {
+                try {
+                    future.join();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+
+        semaphore.acquire(concurrencyLimit);
+        Thread.sleep(2000L);
+
+        log.debug("TrackingService is warmed up!");
     }
 
     @Data
