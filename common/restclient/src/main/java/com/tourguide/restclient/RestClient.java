@@ -15,7 +15,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
 
 public class RestClient {
     private final HttpUrl baseUrl;
@@ -71,8 +70,9 @@ public class RestClient {
         httpClient
                 .newCall(req.build())
                 .enqueue(new Callback() {
+                    @SuppressWarnings("unchecked")
                     @Override
-                    public void onResponse(@NotNull Call okCall, @NotNull Response response) {
+                    public void onResponse(Call okCall, Response response) {
                         //noinspection TryFinallyCanBeTryWithResources
                         try {
                             int httpStatus = response.code();
@@ -85,7 +85,6 @@ public class RestClient {
                                         Reader body = Objects.requireNonNull(response.body()).charStream();
                                         bodyObj = call.responseList ? serializer.deserializeList(body, call.responseType) : serializer.deserialize(body, call.responseType);
                                     }
-                                    //noinspection unchecked
                                     ret.complete((T) bodyObj);
                                     break;
 
@@ -103,7 +102,7 @@ public class RestClient {
                     }
 
                     @Override
-                    public void onFailure(@NotNull Call okCall, @NotNull IOException ex) {
+                    public void onFailure(Call okCall, IOException ex) {
                         ret.completeExceptionally(ex);
                     }
                 });
