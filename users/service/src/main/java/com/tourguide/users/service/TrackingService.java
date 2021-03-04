@@ -154,6 +154,12 @@ public class TrackingService implements InitializingBean {
                 .thenAcceptAsync(reward -> userService.registerReward(e.getUserName(), reward));
     }
 
+    CompletableFuture<Void> registerRewards(User user, Attraction attraction) {
+        return CompletableFuture.allOf(user.getVisitedLocations().stream()
+                .map(location -> registerRewards(new RewardEntry(user.getId(), user.getName(), location, attraction)))
+                .toArray(CompletableFuture[]::new));
+    }
+
     private void doWarmup() throws InterruptedException {
         log.debug("Warmup TrackingService...");
 

@@ -1,9 +1,11 @@
-package com.tourguide.users.internaluser;
+package com.tourguide.users.service.impl;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.tourguide.gps.model.Location;
 import com.tourguide.gps.model.VisitedLocation;
-import com.tourguide.users.internaluser.entity.InternalUserEntity;
-import com.tourguide.users.internaluser.entity.InternalVisitedLocationEntity;
+import com.tourguide.users.entity.InternalUserEntity;
+import com.tourguide.users.entity.InternalVisitedLocationEntity;
+import com.tourguide.users.mapper.InternalUserMapper;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserReward;
 import com.tourguide.users.properties.InternalUsersProperties;
@@ -48,7 +50,8 @@ public class InternalUserService implements UserService {
         this.internalUserMap = generateUserMap(props.getNumber());
     }
 
-    void setUsersNumber(int usersNumber) {
+    @VisibleForTesting
+    public void setUsersNumber(int usersNumber) {
         this.internalUserMap = generateUserMap(usersNumber);
     }
 

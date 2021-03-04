@@ -1,4 +1,4 @@
-package com.tourguide.users.internaluser.entity;
+package com.tourguide.users.entity;
 
 import java.time.ZonedDateTime;
 import java.util.Collection;

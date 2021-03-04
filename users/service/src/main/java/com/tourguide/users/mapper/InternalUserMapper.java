@@ -1,11 +1,11 @@
-package com.tourguide.users.internaluser;
+package com.tourguide.users.mapper;
 
 import com.tourguide.gps.model.VisitedLocation;
 import com.tourguide.mapstruct.MapperConfig;
-import com.tourguide.users.internaluser.entity.InternalUserEntity;
-import com.tourguide.users.internaluser.entity.InternalUserPreferencesEntity;
-import com.tourguide.users.internaluser.entity.InternalUserRewardEntity;
-import com.tourguide.users.internaluser.entity.InternalVisitedLocationEntity;
+import com.tourguide.users.entity.InternalUserEntity;
+import com.tourguide.users.entity.InternalUserPreferencesEntity;
+import com.tourguide.users.entity.InternalUserRewardEntity;
+import com.tourguide.users.entity.InternalVisitedLocationEntity;
 import com.tourguide.users.model.Money;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserPreferences;

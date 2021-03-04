@@ -1,4 +1,4 @@
-package com.tourguide.users.internaluser.entity;
+package com.tourguide.users.entity;
 
 import com.tourguide.gps.model.Attraction;
 import lombok.Data;

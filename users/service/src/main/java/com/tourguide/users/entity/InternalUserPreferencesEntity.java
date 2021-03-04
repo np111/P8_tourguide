@@ -1,4 +1,4 @@
-package com.tourguide.users.internaluser.entity;
+package com.tourguide.users.entity;
 
 import javax.money.CurrencyUnit;
 import javax.money.Monetary;
