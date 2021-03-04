@@ -10,7 +10,9 @@ import com.tourguide.users.model.Money;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserPreferences;
 import com.tourguide.users.model.UserReward;
+import java.math.BigDecimal;
 import javax.money.CurrencyUnit;
+import javax.money.Monetary;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -19,6 +21,9 @@ import org.mapstruct.Mapping;
 public interface InternalUserMapper {
     @BeanMapping(ignoreUnmappedSourceProperties = {"latestLocation"})
     User toUser(InternalUserEntity entity);
+
+    @BeanMapping(ignoreUnmappedSourceProperties = {"latestLocationTimestamp"})
+    InternalUserEntity fromUser(User model);
 
     UserPreferences toUserPreferences(InternalUserPreferencesEntity entity);
 
@@ -44,10 +49,18 @@ public interface InternalUserMapper {
         return value == null ? null : value.getCurrencyCode();
     }
 
+    default CurrencyUnit map(String value) {
+        return value == null ? null : Monetary.getCurrency(value);
+    }
+
     default Money map(org.javamoney.moneta.Money value) {
         return value == null ? null : Money.builder()
                 .currency(value.getCurrency().getCurrencyCode())
                 .amount(value.getNumberStripped().toPlainString())
                 .build();
+    }
+
+    default org.javamoney.moneta.Money map(Money value) {
+        return value == null ? null : org.javamoney.moneta.Money.of(new BigDecimal(value.getAmount()), value.getCurrency());
     }
 }

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -38,7 +39,7 @@ public class InternalUserService implements UserService {
     private final InternalUserMapper internalUserMapper;
 
     /**
-     * This map is immutable (and therefore thread-safe).
+     * This map is thread-safe.
      * The contained InternalUserEntity must necessarily be synchronized with itself for any reading or writing (use
      * {@link #withUserLocked} to access them).
      */
@@ -57,7 +58,7 @@ public class InternalUserService implements UserService {
 
     private Map<String, InternalUserEntity> generateUserMap(int usersNumber) {
         Random random = new Random(GENERATE_RANDOM_SEED);
-        Map<String, InternalUserEntity> res = new HashMap<>(usersNumber, 0.5F);
+        Map<String, InternalUserEntity> res = new ConcurrentHashMap<>(usersNumber, 0.5F);
         for (int i = 0; i < usersNumber; ++i) {
             String userName = "internalUser" + i;
             String phone = "000";
@@ -66,7 +67,7 @@ public class InternalUserService implements UserService {
             generateUserLocationHistory(user, random);
             res.put(user.getName(), user);
         }
-        return Collections.unmodifiableMap(res);
+        return res;
     }
 
     private void generateUserLocationHistory(InternalUserEntity user, Random random) {
@@ -134,6 +135,11 @@ public class InternalUserService implements UserService {
                         .longitude(user.getLatestLocation().getLongitude())
                         .build())));
         return ret;
+    }
+
+    @Override
+    public boolean addUser(User user) {
+        return internalUserMap.putIfAbsent(user.getName(), internalUserMapper.fromUser(user)) == null;
     }
 
     @Override

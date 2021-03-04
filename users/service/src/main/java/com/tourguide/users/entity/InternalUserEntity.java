@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -17,10 +18,10 @@ import lombok.ToString;
 public class InternalUserEntity {
     private final UUID id;
     private final String name;
-    private @Setter String phoneNumber;
-    private @Setter String emailAddress;
+    private @Setter @NonNull String phoneNumber;
+    private @Setter @NonNull String emailAddress;
     private final LinkedList<InternalVisitedLocationEntity> visitedLocations = new LinkedList<>();
-    private final InternalUserPreferencesEntity preferences = new InternalUserPreferencesEntity();
+    private @Setter @NonNull InternalUserPreferencesEntity preferences = new InternalUserPreferencesEntity();
     private final Map<String, InternalUserRewardEntity> rewards = new LinkedHashMap<>();
 
     public InternalUserEntity(UUID id, String name, String phoneNumber, String emailAddress) {

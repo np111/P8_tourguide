@@ -14,6 +14,8 @@ public interface UserService {
 
     Map<UUID, Location> getAllCurrentLocations();
 
+    boolean addUser(User user);
+
     Optional<User> getUser(String userName);
 
     Optional<UUID> getUserId(String userName);
