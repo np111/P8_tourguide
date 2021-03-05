@@ -185,17 +185,18 @@ public class TrackingService implements InitializingBean {
             throw new IllegalStateException("No users");
         }
 
-        int concurrencyLimit = 12_000;
+        int concurrencyLimit = Math.min(users.size() * 10, 12_000);
+        int totalWarmupCount = Math.max(concurrencyLimit * 10, 12_000);
         Semaphore semaphore = new Semaphore(concurrencyLimit);
         AtomicInteger warmupCount = new AtomicInteger();
         for (int i = 0; ; ++i) {
             semaphore.acquire();
-            if (warmupCount.get() >= 120_000) {
+            if (warmupCount.get() >= totalWarmupCount) {
                 semaphore.release();
                 break;
             }
 
-            User user = users.get(i % users.size());
+            User user = userService.getUser(users.get(i % users.size()).getName());
             CompletableFuture<?> future = trackUserLocation(user).whenComplete((ignored, ex) -> {
                 if (ex == null) {
                     warmupCount.incrementAndGet();
