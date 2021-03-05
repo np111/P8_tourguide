@@ -3,6 +3,7 @@ package com.tourguide.model;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Singular;
@@ -20,7 +21,7 @@ public class ApiError {
     /**
      * The type of error, indicating who is responsible (if known) for a failed request.
      */
-    private ErrorType type = ErrorType.UNKNOWN;
+    private @lombok.Builder.Default ErrorType type = ErrorType.UNKNOWN;
 
     /**
      * The error code, allowing to identify its cause and to manage it correctly.

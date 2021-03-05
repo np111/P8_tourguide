@@ -22,3 +22,9 @@ bootJar {
 jar {
     enabled false
 }
+
+apply plugin: 'com.github.johnrengelman.processes'
+apply plugin: 'org.springdoc.openapi-gradle-plugin'
+openApi {
+    apiDocsUrl = 'http://localhost:8082/v3/api-docs'
+}
