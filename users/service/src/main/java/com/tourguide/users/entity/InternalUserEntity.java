@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,12 +32,12 @@ public class InternalUserEntity {
         this.emailAddress = emailAddress;
     }
 
-    public ZonedDateTime getLatestLocationTimestamp() {
-        return visitedLocations.isEmpty() ? null : visitedLocations.getLast().getTimeVisited();
+    public Optional<ZonedDateTime> getLatestLocationTimestamp() {
+        return visitedLocations.isEmpty() ? Optional.empty() : Optional.of(visitedLocations.getLast().getTimeVisited());
     }
 
-    public InternalVisitedLocationEntity getLatestLocation() {
-        return visitedLocations.isEmpty() ? null : visitedLocations.getLast();
+    public Optional<InternalVisitedLocationEntity> getLatestLocation() {
+        return visitedLocations.isEmpty() ? Optional.empty() : Optional.of(visitedLocations.getLast());
     }
 
     public Collection<InternalUserRewardEntity> getRewards() {

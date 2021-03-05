@@ -1,17 +1,15 @@
 package com.tourguide.users.service;
 
 import com.google.common.collect.Iterables;
-import com.tourguide.gps.model.Location;
 import com.tourguide.gps.model.VisitedLocation;
 import com.tourguide.users.model.TripDeal;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserNearbyAttraction;
 import com.tourguide.users.model.UserNearbyAttractions;
-import com.tourguide.users.model.UserReward;
+import com.tourguide.users.util.UserNotFoundException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -26,23 +24,11 @@ public class TourGuideService {
     private final RewardsService rewardsService;
     private final TripPricerService tripPricerService;
 
-    public VisitedLocation getUserLocation(String userName) {
-        return userService.getUserLocation(userName).orElse(null);
-    }
-
-    public List<UserReward> getUserRewards(String userName) {
-        return userService.getUserRewards(userName);
-    }
-
-    public Map<UUID, Location> getAllCurrentLocations() {
-        return userService.getAllCurrentLocations();
-    }
-
-    public UserNearbyAttractions getNearbyAttractions(String userName) {
-        User user = userService.getUser(userName).orElse(null);
-        VisitedLocation location = user == null ? null : Iterables.getLast(user.getVisitedLocations(), null);
+    public Optional<UserNearbyAttractions> getNearbyAttractions(String userName) throws UserNotFoundException {
+        User user = userService.getUser(userName);
+        VisitedLocation location = Iterables.getLast(user.getVisitedLocations(), null);
         if (location == null) {
-            return UserNearbyAttractions.builder().nearbyAttractions(Collections.emptyList()).build();
+            return Optional.empty();
         }
 
         // Fetch nearby attractions
@@ -64,14 +50,14 @@ public class TourGuideService {
                 .join();
 
         // Build response
-        return UserNearbyAttractions.builder()
+        return Optional.of(UserNearbyAttractions.builder()
                 .userLocation(location.getLocation())
                 .nearbyAttractions(nearbyAttractions)
-                .build();
+                .build());
     }
 
-    public List<TripDeal> getTripDeals(String userName) {
-        User user = userService.getUser(userName).orElse(null);
-        return user == null ? Collections.emptyList() : tripPricerService.getTripDeals(user);
+    public List<TripDeal> getTripDeals(String userName) throws UserNotFoundException {
+        User user = userService.getUser(userName);
+        return tripPricerService.getTripDeals(user);
     }
 }

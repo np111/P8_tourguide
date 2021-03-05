@@ -7,6 +7,7 @@ import com.tourguide.gps.model.VisitedLocation;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserReward;
 import com.tourguide.users.properties.TrackingProperties;
+import com.tourguide.users.util.UserNotFoundException;
 import com.tourguide.util.ConcurrentThrottler;
 import java.util.ArrayList;
 import java.util.List;
@@ -126,12 +127,15 @@ public class TrackingService implements InitializingBean {
 
             // Register new visited location
             user.getVisitedLocations().add(visitedLocation);
-            userService.registerVisitedLocation(user.getName(), visitedLocation);
+            try {
+                userService.registerVisitedLocation(user.getName(), visitedLocation);
+            } catch (UserNotFoundException ignored) {
+            }
 
             // Returns newly visited attractions for rewarding
             List<RewardEntry> ret = new ArrayList<>();
             for (NearbyAttraction rewardAttraction : r.getNearbyAttractions()) {
-                if (!userService.hasRewardForAttraction(user.getName(), rewardAttraction.getAttraction().getName())) {
+                if (shouldProcessReward(user.getName(), rewardAttraction.getAttraction().getName())) {
                     VisitedLocation location = user.getVisitedLocations().stream()
                             .filter(x -> x.getLocation().equals(rewardAttraction.getLocation()))
                             .findFirst()
@@ -143,6 +147,14 @@ public class TrackingService implements InitializingBean {
         });
     }
 
+    private boolean shouldProcessReward(String userName, String attractionName) {
+        try {
+            return !userService.hasRewardForAttraction(userName, attractionName);
+        } catch (UserNotFoundException ignored) {
+            return false;
+        }
+    }
+
     private CompletableFuture<Void> registerRewards(RewardEntry e) {
         return rewardsService
                 .getAttractionRewardPoints(e.getAttraction().getId(), e.getUserId())
@@ -151,7 +163,12 @@ public class TrackingService implements InitializingBean {
                         .attraction(e.getAttraction())
                         .rewardPoints(rewardPoints)
                         .build())
-                .thenAcceptAsync(reward -> userService.registerReward(e.getUserName(), reward));
+                .thenAcceptAsync(reward -> {
+                    try {
+                        userService.registerReward(e.getUserName(), reward);
+                    } catch (UserNotFoundException ignored) {
+                    }
+                });
     }
 
     CompletableFuture<Void> registerRewards(User user, Attraction attraction) {

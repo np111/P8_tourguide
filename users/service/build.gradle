@@ -1,4 +1,5 @@
 dependencies {
+    implementation project(':common:common-api')
     implementation project(':common:common-restclient')
     implementation project(':common:common-service')
     implementation project(':gps:gps-api')
@@ -12,6 +13,8 @@ dependencies {
 
     implementation 'org.mapstruct:mapstruct'
     annotationProcessor 'org.mapstruct:mapstruct-processor'
+
+    implementation 'org.springdoc:springdoc-openapi-webmvc-core'
 
     implementation name: 'TripPricer', ext: 'jar'
     implementation 'org.javamoney:moneta'

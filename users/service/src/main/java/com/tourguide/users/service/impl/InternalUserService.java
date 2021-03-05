@@ -10,10 +10,10 @@ import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserReward;
 import com.tourguide.users.properties.InternalUsersProperties;
 import com.tourguide.users.service.UserService;
+import com.tourguide.users.util.UserNotFoundException;
 import com.tourguide.users.util.UuidUtil;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -104,14 +104,15 @@ public class InternalUserService implements UserService {
                 .minusSeconds(random.nextInt(Math.toIntExact(TimeUnit.DAYS.toSeconds(30))));
     }
 
-    private <T> T withUserLocked(String name, Function<InternalUserEntity, T> fn) {
-        return withUserLocked(internalUserMap.get(name), fn);
+    private <T> T withUserLocked(String name, Function<InternalUserEntity, T> fn) throws UserNotFoundException {
+        InternalUserEntity user = internalUserMap.get(name);
+        if (user == null) {
+            throw new UserNotFoundException(name);
+        }
+        return withUserLocked(user, fn);
     }
 
-    private <T> T withUserLocked(InternalUserEntity user, Function<InternalUserEntity, T> fn) {
-        if (user == null) {
-            return fn.apply(null);
-        }
+    private <T> T withUserLocked(@NonNull InternalUserEntity user, Function<InternalUserEntity, T> fn) {
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (user) {
             return fn.apply(user);
@@ -127,13 +128,10 @@ public class InternalUserService implements UserService {
     }
 
     @Override
-    public Map<UUID, Location> getAllCurrentLocations() {
-        Map<UUID, Location> ret = new HashMap<>(internalUserMap.size());
+    public Map<UUID, Optional<Location>> getAllCurrentLocations() {
+        Map<UUID, Optional<Location>> ret = new HashMap<>(internalUserMap.size());
         internalUserMap.values().forEach(e -> withUserLocked(e,
-                user -> ret.put(user.getId(), Location.builder()
-                        .latitude(user.getLatestLocation().getLatitude())
-                        .longitude(user.getLatestLocation().getLongitude())
-                        .build())));
+                user -> ret.put(user.getId(), user.getLatestLocation().map(internalUserMapper::toLocation))));
         return ret;
     }
 
@@ -143,35 +141,30 @@ public class InternalUserService implements UserService {
     }
 
     @Override
-    public Optional<User> getUser(String userName) {
-        return withUserLocked(userName, user -> Optional.ofNullable(internalUserMapper.toUser(user)));
+    public User getUser(String userName) throws UserNotFoundException {
+        return withUserLocked(userName, internalUserMapper::toUser);
     }
 
     @Override
-    public Optional<UUID> getUserId(String userName) {
-        return withUserLocked(userName, user -> user == null ? Optional.empty() : Optional.ofNullable(user.getId()));
+    public UUID getUserId(String userName) throws UserNotFoundException {
+        return withUserLocked(userName, InternalUserEntity::getId);
     }
 
     @Override
-    public Optional<VisitedLocation> getUserLocation(String userName) {
-        return withUserLocked(userName, user -> user == null ? Optional.empty()
-                : Optional.ofNullable(internalUserMapper.toVisitedLocation(user.getLatestLocation())));
+    public Optional<VisitedLocation> getUserLocation(String userName) throws UserNotFoundException {
+        return withUserLocked(userName, user -> user.getLatestLocation().map(internalUserMapper::toVisitedLocation));
     }
 
     @Override
-    public List<UserReward> getUserRewards(String userName) {
-        return withUserLocked(userName, user -> user == null ? Collections.emptyList()
-                : user.getRewards().stream().map(internalUserMapper::toReward).collect(Collectors.toList()));
+    public List<UserReward> getUserRewards(String userName) throws UserNotFoundException {
+        return withUserLocked(userName, user -> user.getRewards().stream().map(internalUserMapper::toReward).collect(Collectors.toList()));
     }
 
     @Override
-    public boolean registerVisitedLocation(String userName, VisitedLocation visitedLocation) {
-        return withUserLocked(userName, user -> {
-            if (user == null) {
-                return false;
-            }
+    public void registerVisitedLocation(String userName, VisitedLocation visitedLocation) throws UserNotFoundException {
+        withUserLocked(userName, user -> {
             registerVisitedLocation0(user, visitedLocation);
-            return true;
+            return null;
         });
     }
 
@@ -184,20 +177,18 @@ public class InternalUserService implements UserService {
     }
 
     @Override
-    public boolean registerReward(String userName, UserReward reward) {
+    public boolean registerReward(String userName, UserReward reward) throws UserNotFoundException {
         return withUserLocked(userName, user -> {
-            if (user == null) {
-                return false;
-            }
             if (!user.hasRewardForAttraction(reward.getAttraction().getName())) {
                 user.putReward(internalUserMapper.fromReward(reward));
+                return true;
             }
-            return true;
+            return false;
         });
     }
 
     @Override
-    public boolean hasRewardForAttraction(String userName, String attractionName) {
-        return withUserLocked(userName, user -> user != null && user.hasRewardForAttraction(attractionName));
+    public boolean hasRewardForAttraction(String userName, String attractionName) throws UserNotFoundException {
+        return withUserLocked(userName, user -> user.hasRewardForAttraction(attractionName));
     }
 }

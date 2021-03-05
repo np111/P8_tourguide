@@ -9,6 +9,7 @@ import gpsUtil.GpsUtil;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,8 +48,8 @@ public class GpsService implements InitializingBean {
         return attractions;
     }
 
-    public VisitedLocation getUserLocation(UUID userId) {
-        return gpsUtilMapper.toVisitedLocation(gpsUtil.getUserLocation(userId));
+    public Optional<VisitedLocation> getUserLocation(UUID userId) {
+        return Optional.of(gpsUtilMapper.toVisitedLocation(gpsUtil.getUserLocation(userId)));
     }
 
     public List<NearbyAttraction> getNearbyAttractions(List<Location> locations, Double maxDistance, Integer limit) {
