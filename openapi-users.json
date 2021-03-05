@@ -1,0 +1,397 @@
+{
+  "components": {
+    "schemas": {
+      "UserNearbyAttractions": {
+        "type": "object",
+        "properties": {
+          "userLocation": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "nearbyAttractions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserNearbyAttraction"
+            }
+          }
+        }
+      },
+      "Money": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          }
+        }
+      },
+      "TripDeal": {
+        "type": "object",
+        "properties": {
+          "price": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "name": {
+            "type": "string"
+          },
+          "tripId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        }
+      },
+      "Attraction": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "VisitedLocation": {
+        "type": "object",
+        "properties": {
+          "timeVisited": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          }
+        }
+      },
+      "UserReward": {
+        "type": "object",
+        "properties": {
+          "attraction": {
+            "$ref": "#/components/schemas/Attraction"
+          },
+          "visitedLocation": {
+            "$ref": "#/components/schemas/VisitedLocation"
+          },
+          "rewardPoints": {
+            "format": "int32",
+            "type": "integer"
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENT",
+              "SERVICE",
+              "UNKNOWN"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "longitude": {
+            "format": "double",
+            "type": "number"
+          }
+        }
+      },
+      "UserNearbyAttraction": {
+        "type": "object",
+        "properties": {
+          "attraction": {
+            "$ref": "#/components/schemas/Attraction"
+          },
+          "distance": {
+            "format": "double",
+            "type": "number"
+          },
+          "rewardPoints": {
+            "format": "int32",
+            "type": "integer"
+          }
+        }
+      }
+    }
+  },
+  "servers": [],
+  "openapi": "3.0.1",
+  "paths": {
+    "/getTripDeals": {
+      "get": {
+        "summary": "Lists the user's trip deals",
+        "operationId": "getTripDeals",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TripDeal"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`USER_NOT_FOUND` - The user does not exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "metadata": {
+                    "userName": "string"
+                  },
+                  "code": "USER_NOT_FOUND",
+                  "type": "SERVICE",
+                  "message": "The user does not exists"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userName",
+            "required": true
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/getAllCurrentLocations": {
+      "get": {
+        "summary": "Lists all user's last known location",
+        "description": "Returns a map associating user ID (uuid) to it's last known location (which can be null if unknown).",
+        "operationId": "getAllCurrentLocations",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/Location"
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/getRewards": {
+      "get": {
+        "summary": "Lists the user's rewards",
+        "operationId": "getRewards",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserReward"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`USER_NOT_FOUND` - The user does not exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "metadata": {
+                    "userName": "string"
+                  },
+                  "code": "USER_NOT_FOUND",
+                  "type": "SERVICE",
+                  "message": "The user does not exists"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userName",
+            "required": true
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/getLocation": {
+      "get": {
+        "summary": "Get the user's last known location",
+        "operationId": "getLocation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitedLocation"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "If the user has no known location."
+          },
+          "404": {
+            "description": "`SERVICE`/`USER_NOT_FOUND` - The user does not exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "metadata": {
+                    "userName": "string"
+                  },
+                  "code": "USER_NOT_FOUND",
+                  "type": "SERVICE",
+                  "message": "The user does not exists"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userName",
+            "required": true
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/getNearbyAttractions": {
+      "get": {
+        "summary": "Lists the user's closest attractions",
+        "description": "Returns the list of the 5 attractions closest to the user last known location (sorted from the closest to the farthest).",
+        "operationId": "getNearbyAttractions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserNearbyAttractions"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "If the user has no known location."
+          },
+          "404": {
+            "description": "`SERVICE`/`USER_NOT_FOUND` - The user does not exists",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "metadata": {
+                    "userName": "string"
+                  },
+                  "code": "USER_NOT_FOUND",
+                  "type": "SERVICE",
+                  "message": "The user does not exists"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userName",
+            "required": true
+          }
+        ],
+        "tags": [
+          "users"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TourGuide Users API",
+    "version": "1.0",
+    "description": "<a href=\"https://github.com/np111/P8_tourguide\">View Source on GitHub</a>"
+  },
+  "tags": [
+    {
+      "name": "users",
+      "description": "Users operations"
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENT",
+              "SERVICE",
+              "UNKNOWN"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "servers": [],
+  "openapi": "3.0.1",
+  "paths": {
+    "/getAttractionRewardPoints": {
+      "get": {
+        "summary": "Get rewards points for visiting an attraction",
+        "description": "Returns the number of points the user can earn if he visit the attraction.",
+        "operationId": "getUserLocation",
+        "responses": {
+          "default": {
+            "description": "OK<br/>\nNote: Returns -1 if the attraction or user does not exists.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "format": "int32",
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "attractionId",
+            "required": true
+          },
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "tags": [
+          "rewards"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TourGuide Rewards API",
+    "version": "1.0",
+    "description": "<a href=\"https://github.com/np111/P8_tourguide\">View Source on GitHub</a>"
+  },
+  "tags": [
+    {
+      "name": "rewards",
+      "description": "Rewards operations"
+    }
+  ]
+}

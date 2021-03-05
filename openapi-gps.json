@@ -1,0 +1,309 @@
+{
+  "components": {
+    "schemas": {
+      "Attraction": {
+        "type": "object",
+        "properties": {
+          "city": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "TrackNearbyAttraction": {
+        "type": "object",
+        "properties": {
+          "userLocation": {
+            "$ref": "#/components/schemas/VisitedLocation"
+          },
+          "nearbyAttractions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NearbyAttraction"
+            }
+          }
+        }
+      },
+      "NearbyAttraction": {
+        "type": "object",
+        "properties": {
+          "attraction": {
+            "$ref": "#/components/schemas/Attraction"
+          },
+          "distance": {
+            "format": "double",
+            "type": "number"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          }
+        }
+      },
+      "VisitedLocation": {
+        "type": "object",
+        "properties": {
+          "timeVisited": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "metadata": {
+            "additionalProperties": {
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "code": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENT",
+              "SERVICE",
+              "UNKNOWN"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "format": "double",
+            "type": "number"
+          },
+          "longitude": {
+            "format": "double",
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "servers": [],
+  "openapi": "3.0.1",
+  "paths": {
+    "/nearbyAttractions": {
+      "get": {
+        "summary": "Lists the nearest attractions",
+        "description": "Returns the list of attractions closest to the specified locations (if more than one location is specified, then for each attraction only the closest one is considered).<br/>\nThe list is sorted by distance (from nearest to farthest).<br/>\nYou can also specify a maximum distance and limit the number of results.",
+        "operationId": "getNearbyAttractions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NearbyAttraction"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "location",
+              "type": "string",
+              "example": "33.817595,-117.922008"
+            },
+            "in": "query",
+            "name": "location",
+            "description": "<i>Format</i> : <code>&lt;latitude&gt;,&lt;longitude&gt;</code>\n<br/><i>Repeatable</i> (can be repeated to check multiple locations - eg. <code>?location=A&location=B</code>)",
+            "required": true
+          },
+          {
+            "schema": {
+              "format": "double",
+              "exclusiveMinimum": true,
+              "type": "number",
+              "minimum": 0
+            },
+            "in": "query",
+            "name": "maxDistance",
+            "description": "Unlimited if not defined.",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "int32",
+              "type": "integer",
+              "minimum": 1
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "Unlimited if not defined.",
+            "required": false
+          }
+        ],
+        "tags": [
+          "gps"
+        ]
+      }
+    },
+    "/userLocation": {
+      "get": {
+        "summary": "Retrieve the user's current location",
+        "operationId": "getUserLocation",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VisitedLocation"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "If it is not possible to locate the specified user (e.g. if he does not exist)."
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "tags": [
+          "gps"
+        ]
+      }
+    },
+    "/trackNearbyAttractions": {
+      "get": {
+        "summary": "Retrieve the user's current location and lists the nearest attractions",
+        "description": "Returns the list of attractions closest to the current user's location (and also the additional locations specified - so if more than one location is specified, then for each attraction only the closest one is considered).<br/>\nThe list is sorted by distance (from nearest to farthest).<br/>\nYou can also specify a maximum distance and limit the number of results.<br/>\n<br/>\nThis method is a combination of /userLocation and /nearbyAttractions (to reduce API calls).",
+        "operationId": "trackNearbyAttractions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrackNearbyAttraction"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "in": "query",
+            "name": "userId",
+            "required": true
+          },
+          {
+            "schema": {
+              "format": "location",
+              "type": "string",
+              "example": "33.817595,-117.922008"
+            },
+            "in": "query",
+            "name": "location",
+            "description": "<i>Format</i> : <code>&lt;latitude&gt;,&lt;longitude&gt;</code>\n<br/><i>Repeatable</i> (can be repeated to check multiple locations - eg. <code>?location=A&location=B</code>)",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "double",
+              "exclusiveMinimum": true,
+              "type": "number",
+              "minimum": 0
+            },
+            "in": "query",
+            "name": "maxDistance",
+            "description": "Unlimited if not defined.",
+            "required": false
+          },
+          {
+            "schema": {
+              "format": "int32",
+              "type": "integer",
+              "minimum": 1
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "Unlimited if not defined.",
+            "required": false
+          }
+        ],
+        "tags": [
+          "gps"
+        ]
+      }
+    },
+    "/attractions": {
+      "get": {
+        "summary": "Lists the attractions",
+        "description": "Returns the list of all attractions.",
+        "operationId": "getAttractions",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Attraction"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "gps"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TourGuide GPS API",
+    "version": "1.0",
+    "description": "<a href=\"https://github.com/np111/P8_tourguide\">View Source on GitHub</a>"
+  },
+  "tags": [
+    {
+      "name": "gps",
+      "description": "GPS operations"
+    }
+  ]
+}
