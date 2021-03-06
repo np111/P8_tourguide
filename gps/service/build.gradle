@@ -18,7 +18,7 @@ dependencies {
 bootJar {
     enabled true
     archiveBaseName = 'tour-guide-gps'
-    archiveVersion = tourGuideVersion
+    archiveVersion = null
 }
 jar {
     enabled false

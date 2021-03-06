@@ -47,15 +47,15 @@ RUN gradle --no-daemon :gps:gps-service:build :rewards:rewards-service:build :us
 ################################################################################
 # GPS
 FROM java as gps
-COPY --chown=app --from=tourguide-build /app/gps/service/build/libs/tour-guide-gps-1.0.0.jar app.jar
+COPY --chown=app --from=tourguide-build /app/gps/service/build/libs/tour-guide-gps.jar app.jar
 EXPOSE 8081
 
 # Rewards
 FROM java as rewards
-COPY --chown=app --from=tourguide-build /app/rewards/service/build/libs/tour-guide-rewards-1.0.0.jar app.jar
+COPY --chown=app --from=tourguide-build /app/rewards/service/build/libs/tour-guide-rewards.jar app.jar
 EXPOSE 8082
 
 # Users
 FROM java as users
-COPY --chown=app --from=tourguide-build /app/users/service/build/libs/tour-guide-users-1.0.0.jar app.jar
+COPY --chown=app --from=tourguide-build /app/users/service/build/libs/tour-guide-users.jar app.jar
 EXPOSE 8080

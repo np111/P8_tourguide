@@ -17,7 +17,7 @@ dependencies {
 bootJar {
     enabled true
     archiveBaseName = 'tour-guide-rewards'
-    archiveVersion = tourGuideVersion
+    archiveVersion = null
 }
 jar {
     enabled false

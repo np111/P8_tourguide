@@ -23,7 +23,7 @@ dependencies {
 bootJar {
     enabled true
     archiveBaseName = 'tour-guide-users'
-    archiveVersion = tourGuideVersion
+    archiveVersion = null
 }
 jar {
     enabled false

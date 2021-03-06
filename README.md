@@ -1,4 +1,4 @@
-# TourGuide
+# [![TourGuide](.readme/logo.png?raw=true)](https://github.com/np111/P8_tourguide)
 
 TourGuide is a mobile and PC application that will change the way you travel!
 
@@ -6,18 +6,10 @@ TourGuide is a mobile and PC application that will change the way you travel!
 
 - [HTTP API Documentation](https://np111.github.io/P8_tourguide/index.html)
 
-## Getting started
-
-TODO
-
-## Deployment
-
-TODO
-
 ## Enhanced performance (730x faster!)
 
-Tracking performance was improved by parallelizing tasks and replicating
-overloaded services (to remove the bottlenecks).
+Since the legacy version, tracking performance was improved by parallelizing
+tasks and replicating overloaded services (to remove the bottlenecks).
 
 Here is a benchmark for 100 000 users (AMD Ryzen 9 3900XT - 24 x 4.0GHz • 64GB
 RAM):
@@ -45,6 +37,56 @@ RAM):
   Tracking progression: 100000/100000 Δ  2826 | 10.327s
   Tracker Time Elapsed: 10.327s.
   ```
+
+## Getting started
+
+These instructions will get you a copy of the project up and running on your
+local machine for development.
+
+### Prerequisites
+
+- Install
+  [Java 11+](https://adoptopenjdk.net/?variant=openjdk15&jvmVariant=hotspot)
+- Install [Docker](https://docs.docker.com/get-docker/)
+  and [Docker Compose](https://docs.docker.com/compose/install/)
+
+### Running services
+
+Compile the application using gradle:
+
+```bash
+./gradlew build
+```
+
+Then start all services (each in a different terminal):
+
+```bash
+java -jar gps/service/build/libs/tour-guide-gps.jar
+java -jar rewards/service/build/libs/tour-guide-rewards.jar
+java -jar users/service/build/libs/tour-guide-users.jar
+```
+
+### Testing
+
+```bash
+./gradlew test
+```
+
+### Updating documentation
+
+```bash
+./docs.sh generate
+./docs.sh publish
+```
+
+## Deployment
+
+Take a look at docker-compose.yml for an example of deployment. You can test it
+by running:
+
+```bash
+docker-compose -p tourguide up --remove-orphans --build
+```
 
 ## Notes
 
