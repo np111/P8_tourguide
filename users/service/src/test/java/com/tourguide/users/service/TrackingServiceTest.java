@@ -7,6 +7,7 @@ import com.tourguide.users.model.User;
 import com.tourguide.users.service.impl.InternalUserService;
 import com.tourguide.util.ConcurrentThrottler;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.time.StopWatch;
@@ -32,10 +33,19 @@ class TrackingServiceTest { // (legacy name: TestPerformance)
     void trackUsers() throws InterruptedException { // (legacy name: highVolumeTrackLocation)
         userService.setUsersNumber(100);
 
+        int initialVisitedLocationsSize = userService.getAllUsers().stream()
+                .map(u -> u.getVisitedLocations().size())
+                .max((a, b) -> b - a)
+                .orElseThrow(NoSuchElementException::new);
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         trackingService.trackUsers();
         stopWatch.stop();
+
+        for (User user : userService.getAllUsers()) {
+            assertTrue(user.getVisitedLocations().size() > initialVisitedLocationsSize);
+        }
 
         System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds."); // (legacy logs)
         assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
