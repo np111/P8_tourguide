@@ -2,6 +2,8 @@
 
 TourGuide is a mobile and PC application that will change the way you travel!
 
+![Poster](.readme/poster.jpg?raw=true)
+
 ## Documentation
 
 - [HTTP API Documentation](https://np111.github.io/P8_tourguide/index.html)
