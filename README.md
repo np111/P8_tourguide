@@ -90,6 +90,8 @@ by running:
 docker-compose -p tourguide up --remove-orphans --build
 ```
 
+![Deployment Overview](.readme/deployment.png?raw=true)
+
 ## Notes
 
 This is a school project (for OpenClassrooms).
