@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.DecimalMin;
@@ -99,25 +98,6 @@ public class GpsController {
             @Parameter(description = "Unlimited if not defined.")
             @RequestParam(name = "limit", required = false) @Min(1) Integer limit
     ) {
-        VisitedLocation userLocation = gpsService.getUserLocation(userId).orElse(null);
-        if (userLocation != null) {
-            if (locations == null) {
-                locations = Collections.singletonList(userLocation.getLocation());
-            } else {
-                locations.add(userLocation.getLocation());
-            }
-        }
-
-        List<NearbyAttraction> nearbyAttractions;
-        if (locations == null || locations.isEmpty()) {
-            nearbyAttractions = Collections.emptyList();
-        } else {
-            nearbyAttractions = gpsService.getNearbyAttractions(locations, maxDistance, limit);
-        }
-
-        return TrackNearbyAttraction.builder()
-                .userLocation(userLocation)
-                .nearbyAttractions(nearbyAttractions)
-                .build();
+        return gpsService.trackNearbyAttractions(userId, locations, maxDistance, limit);
     }
 }

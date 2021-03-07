@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.tourguide.gps.model.Attraction;
 import com.tourguide.gps.model.Location;
 import com.tourguide.gps.model.NearbyAttraction;
+import com.tourguide.gps.model.TrackNearbyAttraction;
 import com.tourguide.gps.model.VisitedLocation;
 import gpsUtil.GpsUtil;
 import java.util.Collections;
@@ -49,7 +50,7 @@ public class GpsService implements InitializingBean {
     }
 
     public Optional<VisitedLocation> getUserLocation(UUID userId) {
-        return Optional.of(gpsUtilMapper.toVisitedLocation(gpsUtil.getUserLocation(userId)));
+        return Optional.ofNullable(gpsUtilMapper.toVisitedLocation(gpsUtil.getUserLocation(userId)));
     }
 
     public List<NearbyAttraction> getNearbyAttractions(List<Location> locations, Double maxDistance, Integer limit) {
@@ -80,7 +81,30 @@ public class GpsService implements InitializingBean {
         return ret.collect(Collectors.toList());
     }
 
-    private double getDistanceInMile(Location a, Location b) {
+    public TrackNearbyAttraction trackNearbyAttractions(UUID userId, List<Location> locations, Double maxDistance, Integer limit) {
+        VisitedLocation userLocation = getUserLocation(userId).orElse(null);
+        if (userLocation != null) {
+            if (locations == null) {
+                locations = Collections.singletonList(userLocation.getLocation());
+            } else {
+                locations.add(userLocation.getLocation());
+            }
+        }
+
+        List<NearbyAttraction> nearbyAttractions;
+        if (locations == null || locations.isEmpty()) {
+            nearbyAttractions = Collections.emptyList();
+        } else {
+            nearbyAttractions = getNearbyAttractions(locations, maxDistance, limit);
+        }
+
+        return TrackNearbyAttraction.builder()
+                .userLocation(userLocation)
+                .nearbyAttractions(nearbyAttractions)
+                .build();
+    }
+
+    double getDistanceInMile(Location a, Location b) {
         double lat1 = Math.toRadians(a.getLatitude());
         double lon1 = Math.toRadians(a.getLongitude());
         double lat2 = Math.toRadians(b.getLatitude());

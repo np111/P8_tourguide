@@ -1,30 +1,14 @@
-package com.tourguide.users.mock;
+package com.tourguide.gps.mock;
 
-import com.tourguide.users.service.GpsService;
-import com.tourguide.users.service.RewardsService;
-import com.tourguide.users.service.TrackingService;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.Trigger;
 
 @TestConfiguration
 public class MockConfig {
-    @Bean
-    @Primary
-    public GpsService getGpsService() {
-        return new MockGpsService();
-    }
-
-    @Bean
-    @Primary
-    public RewardsService getRewardsService() {
-        return new MockRewardsService();
-    }
-
     @Bean
     public TaskScheduler taskScheduler() {
         // Returns a disabled TaskScheduler

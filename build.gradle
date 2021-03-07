@@ -91,18 +91,22 @@ subprojects {
 
     // Configure Jacoco
     apply plugin: 'jacoco'
-
     jacoco {
         toolVersion = jacocoVersion
     }
-
     jacocoTestReport {
         reports {
             xml.enabled true
             csv.enabled false
             html.destination file("${buildDir}/jacocoHtml")
         }
+        afterEvaluate {
+            classDirectories.setFrom(classDirectories.files.collect {
+                fileTree(dir: it, exclude: [
+                        '**/*MapperImpl*'
+                ])
+            })
+        }
     }
-
     test.finalizedBy jacocoTestReport
 }
