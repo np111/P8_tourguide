@@ -1,4 +1,5 @@
 # [![TourGuide](.readme/logo.png?raw=true)](https://github.com/np111/P8_tourguide)
+[![build](https://github.com/np111/P8_tourguide/actions/workflows/build.yml/badge.svg)](https://github.com/np111/P8_tourguide/actions/workflows/build.yml) [![codecov.io](https://codecov.io/github/np111/P8_tourguide/coverage.svg?branch=master)](https://codecov.io/github/np111/P8_tourguide?branch=master)
 
 TourGuide is a mobile and PC application that will change the way you travel!
 
