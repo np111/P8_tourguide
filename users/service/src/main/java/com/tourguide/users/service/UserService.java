@@ -15,6 +15,8 @@ public interface UserService {
 
     Map<UUID, Optional<Location>> getAllCurrentLocations();
 
+    void clearUsers();
+
     boolean addUser(User user);
 
     User getUser(String userName) throws UserNotFoundException;

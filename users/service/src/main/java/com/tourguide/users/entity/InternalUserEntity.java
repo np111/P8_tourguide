@@ -44,6 +44,11 @@ public class InternalUserEntity {
         return rewards.values();
     }
 
+    public void setRewards(Collection<InternalUserRewardEntity> rewards) {
+        this.rewards.clear();
+        rewards.forEach(this::putReward);
+    }
+
     public boolean hasRewardForAttraction(String attractionName) {
         return rewards.containsKey(attractionName);
     }

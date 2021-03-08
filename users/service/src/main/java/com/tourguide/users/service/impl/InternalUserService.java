@@ -112,7 +112,7 @@ public class InternalUserService implements UserService {
         return withUserLocked(user, fn);
     }
 
-    private <T> T withUserLocked(@NonNull InternalUserEntity user, Function<InternalUserEntity, T> fn) {
+    private <T> T withUserLocked(InternalUserEntity user, Function<InternalUserEntity, T> fn) {
         //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (user) {
             return fn.apply(user);
@@ -133,6 +133,11 @@ public class InternalUserService implements UserService {
         internalUserMap.values().forEach(e -> withUserLocked(e,
                 user -> ret.put(user.getId(), user.getLatestLocation().map(internalUserMapper::toLocation))));
         return ret;
+    }
+
+    @Override
+    public void clearUsers() {
+        internalUserMap.clear();
     }
 
     @Override
@@ -170,7 +175,7 @@ public class InternalUserService implements UserService {
 
     private void registerVisitedLocation0(InternalUserEntity user, @NonNull VisitedLocation visitedLocation) {
         LinkedList<InternalVisitedLocationEntity> visitedLocations = user.getVisitedLocations();
-        if (visitedLocations.size() > VISITED_LOCATION_LIMIT) {
+        if (visitedLocations.size() >= VISITED_LOCATION_LIMIT) {
             visitedLocations.removeFirst();
         }
         visitedLocations.addLast(internalUserMapper.fromVisitedLocation(visitedLocation));
