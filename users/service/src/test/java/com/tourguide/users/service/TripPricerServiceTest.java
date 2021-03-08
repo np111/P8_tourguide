@@ -1,5 +1,6 @@
 package com.tourguide.users.service;
 
+import com.tourguide.users.mock.MockConfig;
 import com.tourguide.users.model.Money;
 import com.tourguide.users.model.TripDeal;
 import com.tourguide.users.model.User;
@@ -13,6 +14,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
 
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@Import(MockConfig.class)
 class TripPricerServiceTest {
     private static final UUID USER_ID = UUID.fromString("8d91f2af-b5e9-427e-8fbc-57aa125599d3");
     private static final UUID TRIP_ID = UUID.fromString("aca7d751-6ee6-4a1a-bf8c-ce6208546ea7");

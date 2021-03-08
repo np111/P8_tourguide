@@ -17,6 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 /**
@@ -59,7 +60,19 @@ public class MockGpsService implements GpsService {
 
     @Override
     public CompletableFuture<List<NearbyAttraction>> getNearbyAttractions(List<Location> locations, Double maxDistance, Integer limit) {
-        throw new UnsupportedOperationException();
+        return CompletableFuture.supplyAsync(() -> {
+            return locations.stream().map(location -> NearbyAttraction.builder()
+                    .attraction(Attraction.builder()
+                            .name("Attraction")
+                            .city("Anaheim")
+                            .state("CA")
+                            .location(location)
+                            .build())
+                    .distance(0.0D)
+                    .location(location)
+                    .build())
+                    .collect(Collectors.toList());
+        }, executor);
     }
 
     @Override

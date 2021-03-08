@@ -4,6 +4,7 @@ import com.google.common.collect.Iterables;
 import com.tourguide.gps.model.Attraction;
 import com.tourguide.gps.model.Location;
 import com.tourguide.gps.model.VisitedLocation;
+import com.tourguide.users.mock.MockConfig;
 import com.tourguide.users.model.Money;
 import com.tourguide.users.model.User;
 import com.tourguide.users.model.UserPreferences;
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@Import(MockConfig.class)
 class InternalUserServiceTest {
     private static final Attraction ATTRACTION_0 = Attraction.builder()
             .id(UUID.fromString("3a84241e-7144-466a-827f-7daf5166464e"))
