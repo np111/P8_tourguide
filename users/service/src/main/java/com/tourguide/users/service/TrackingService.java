@@ -30,18 +30,37 @@ import org.springframework.stereotype.Service;
 
 import static com.tourguide.users.util.LogUtil.formatMillis;
 
+/**
+ * Position tracking service.
+ */
 @Service
 @Slf4j
 public class TrackingService implements InitializingBean {
+    private static final long SECOND_NANO = TimeUnit.SECONDS.toNanos(1);
+
+    /**
+     * Interval (in milliseconds) to update user tracking.
+     */
     private static final long TRACK_USERS_RATE = 5 * 60 * 1000L;
 
-    private static final long SECOND_NANO = TimeUnit.SECONDS.toNanos(1);
+    /**
+     * Number of concurrent queries to leave free for {@linkplain GpsService#getMaxRequests() GpsService} and
+     * {@linkplain RewardsService#getMaxRequests() RewardsService}.
+     */
     private static final int SERVICES_PRESSURE_FREE_REQUESTS = 48;
 
     private final UserService userService;
     private final GpsService gpsService;
     private final RewardsService rewardsService;
+
+    /**
+     * Distance (in miles) at which a user is considered to have visited an attraction.
+     */
     private @Setter double proximityBuffer;
+
+    /**
+     * Should the JVM be warmed up to get the best performance immediately (for benchmarks).
+     */
     private final boolean warmup;
 
     @Autowired
@@ -60,12 +79,14 @@ public class TrackingService implements InitializingBean {
         }
     }
 
+    /**
+     * Scheduled methods, which track users' location changes; to save their history and offer them their rewards.
+     */
     @Scheduled(initialDelay = 5_000L, fixedRate = TRACK_USERS_RATE)
     public void trackUsers() throws InterruptedException {
         // TODO: abort after too many failures/exceptions
 
-        List<User> users = userService.getAllUsers();
-
+        // Init the concurrent methods' optimized callers.
         ConcurrentThrottler<User, List<RewardEntry>> trackUserLocation = ConcurrentThrottler.<User, List<RewardEntry>>builder()
                 .limit(Math.max(1, gpsService.getMaxRequests() - SERVICES_PRESSURE_FREE_REQUESTS))
                 .function(this::trackUserLocation)
@@ -76,10 +97,14 @@ public class TrackingService implements InitializingBean {
                 .function(this::registerRewards)
                 .build();
 
+        // Then retrieve all users (and start logging)
+        List<User> users = userService.getAllUsers();
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         log.info("Begin Tracker. Tracking {} users.", users.size());
 
+        // Start the concurrent calls pipeline
         CountDownLatch cdl = new CountDownLatch(users.size());
         users.forEach(user -> trackUserLocation.call(user)
                 .thenCompose(registerRewards::callAll)
@@ -91,7 +116,7 @@ public class TrackingService implements InitializingBean {
                     }
                 }));
 
-        // Waiting for the end of the operation (and log every seconds)
+        // Finally wait for the end of the operation (and log every seconds)
         int prevCount = 0;
         while (true) {
             boolean done = cdl.await(SECOND_NANO - (stopWatch.getNanoTime() % SECOND_NANO), TimeUnit.NANOSECONDS);
@@ -177,6 +202,10 @@ public class TrackingService implements InitializingBean {
                 .toArray(CompletableFuture[]::new));
     }
 
+    /**
+     * Magic method to warm up the JVM (mainly because of JIT) in order to get the best performance immediately during
+     * benchmarks. This method is optimized for HotSpot JVM.
+     */
     private void doWarmup() throws InterruptedException {
         log.debug("Warmup TrackingService...");
 

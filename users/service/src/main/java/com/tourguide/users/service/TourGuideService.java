@@ -16,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * General TourGuide service performing complex operations between other services.
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
 public class TourGuideService {
@@ -24,6 +27,14 @@ public class TourGuideService {
     private final RewardsService rewardsService;
     private final TripPricerService tripPricerService;
 
+    /**
+     * Returns the list of the 5 attractions closest to the user last known location (sorted from the closest to the
+     * farthest).
+     *
+     * @param userName the name of the user to be return the closest attractions
+     * @return the list; or empty if the user has no known visited locations
+     * @throws UserNotFoundException if no user match this name.
+     */
     public Optional<UserNearbyAttractions> getNearbyAttractions(String userName) throws UserNotFoundException {
         User user = userService.getUser(userName);
         VisitedLocation location = Iterables.getLast(user.getVisitedLocations(), null);
@@ -56,6 +67,12 @@ public class TourGuideService {
                 .build());
     }
 
+    /**
+     * Lists the user's trip deals.
+     *
+     * @param userName the name of the user to be return the trip deals
+     * @throws UserNotFoundException if no user match this name.
+     */
     public List<TripDeal> getTripDeals(String userName) throws UserNotFoundException {
         User user = userService.getUser(userName);
         return tripPricerService.getTripDeals(user);

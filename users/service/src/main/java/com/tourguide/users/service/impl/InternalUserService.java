@@ -40,7 +40,7 @@ public class InternalUserService implements UserService {
 
     /**
      * This map is thread-safe.
-     * The contained InternalUserEntity must necessarily be synchronized with itself for any reading or writing (use
+     * Any contained InternalUserEntity must necessarily be synchronized with itself for any reading or writing (so use
      * {@link #withUserLocked} to access them).
      */
     private Map<String, InternalUserEntity> internalUserMap;

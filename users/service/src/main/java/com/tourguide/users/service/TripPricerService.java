@@ -12,11 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tripPricer.TripPricer;
 
+/**
+ * Trip pricer management service.
+ */
 @Service
 public class TripPricerService {
     private static final String TRIP_PRICER_CURRENCY = "USD";
 
     private final TripPricer tripPricer;
+
+    /**
+     * Secret key to communicate with the TripPricer API.
+     */
     private final String apiKey;
 
     @Autowired
@@ -25,6 +32,12 @@ public class TripPricerService {
         this.apiKey = props.getApiKey();
     }
 
+    /**
+     * Returns the trip deals list for a user, according to his preferences.
+     *
+     * @param user the user
+     * @return the trip deals list
+     */
     public List<TripDeal> getTripDeals(User user) {
         int totalRewardPoints = user.getRewards().stream().mapToInt(UserReward::getRewardPoints).sum();
         return tripPricer.getPrice(
